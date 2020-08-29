@@ -1,0 +1,19 @@
+{
+  "name": "musicalreddit",
+  "version": "1.0.0",
+  "description": "Generated music through posts of oneor more subreddits",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ron-debajyoti/musicalReddit.git"
+  },
+  "author": "ron-debajyoti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ron-debajyoti/musicalReddit/issues"
+  },
+  "homepage": "https://github.com/ron-debajyoti/musicalReddit#readme"
+}

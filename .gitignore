@@ -1,0 +1,11 @@
+node_modules/
+server/node_modules
+
+#production
+/build
+
+#misc
+.env
+.vscode
+
+
