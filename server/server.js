@@ -1,12 +1,17 @@
 require('dotenv').config()
 const snoowrap = require('snoowrap')
 const express = require('express')
-let request = require('request')
+var {graphqlHTTP} = require('express-graphql') 
+var request = require('request')
+var cors = require('cors')
 const querystring = require('querystring')
+const mongoclient = require('mongodb').MongoClient
 
 var app = express()
+app.use(cors())
 app.set('json spaces',2)
 let port = process.env.PORT || 4000
+let mongodbAddress = process.env.MONGODB_ADDRESS || 'mongodb://localhost:27017'
 let redirect_uri = process.env.REDIRECT_URI || 'http://localhost:4000/callback'
 // console.log(process.env.REDDIT_CLIENT)
 
@@ -16,7 +21,7 @@ app.get('/login',(req,res) => {
         response_type: 'code',
         client_id: process.env.REDDIT_CLIENT,
         state: 'sddsfnjdskg',
-        scope: 'identity wikiread',
+        scope: 'read',
         redirect_uri
     }))
 })
@@ -40,19 +45,31 @@ app.get('/callback', (req,res) => {
 
     request.post(authOptions, (error, response,body) => {
         if(!error){
-            console.log("working till here ")
+            // console.log(body)
             var access_token = body.access_token
-            var refresh_token = body.refresh_token
             let frontend_uri = process.env.FRONTEND_URI || 'http://localhost:3000/'
             res.redirect(frontend_uri +'?' + querystring.stringify({
-                access_token:access_token,
-                refresh_token: refresh_token
+                access_token:access_token
             }))
         }
         else{
             throw error
         }
     })
+})
+
+
+// a REST API interface that returns the posts 
+app.get('/getposts',(req,res) => {
+    let access_token = req.headers.access_token
+    console.log(access_token)
+    const r = new snoowrap({
+        accessToken: access_token,
+        userAgent: process.env.USER_AGENT
+    })
+
+    r.getSubreddit('pics').getHot()
+        .then(data => res.send(data))
 })
 
 console.log(`Listening on port ${port}. Go /login to initiate authentication flow.`)

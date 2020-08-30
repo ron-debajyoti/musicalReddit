@@ -1,11 +1,10 @@
 import React,{Component} from 'react';
+import {AuthenticatedRoute} from './Auth'
 import '../css/App.css';
 
 function App() {
   return(
-    <div>
-      <h2>Hello friend</h2>
-    </div>
+    <AuthenticatedRoute />
   )
 }
 
