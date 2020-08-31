@@ -1,20 +1,37 @@
 require('dotenv').config()
 const snoowrap = require('snoowrap')
 const express = require('express')
-var {graphqlHTTP} = require('express-graphql') 
 var request = require('request')
 var cors = require('cors')
 const querystring = require('querystring')
-const mongoclient = require('mongodb').MongoClient
+
 
 var app = express()
 app.use(cors())
 app.set('json spaces',2)
 let port = process.env.PORT || 4000
-let mongodbAddress = process.env.MONGODB_ADDRESS || 'mongodb://localhost:27017'
+// let mongodbAddress = process.env.MONGODB_ADDRESS || 'mongodb://localhost:27017'
 let redirect_uri = process.env.REDIRECT_URI || 'http://localhost:4000/callback'
 // console.log(process.env.REDDIT_CLIENT)
 
+
+const stripData = (data) => {
+    var store = []
+    data.forEach(dataElement => {
+        var storeObject = {}
+        storeObject['created_utc'] = dataElement.created_utc
+        storeObject['authorName'] = dataElement.author.name
+        storeObject['authorFullName'] = dataElement.author_fullname
+        storeObject['id'] = dataElement.id
+        storeObject['permalink'] = dataElement.permalink
+        storeObject['title'] = dataElement.title
+        store.push(storeObject)
+    })
+    return store
+
+}
+
+//Login route
 app.get('/login',(req,res) => {
     res.redirect('https://www.reddit.com/api/v1/authorize?'+
     querystring.stringify({
@@ -62,14 +79,26 @@ app.get('/callback', (req,res) => {
 // a REST API interface that returns the posts 
 app.get('/getposts',(req,res) => {
     let access_token = req.headers.access_token
-    console.log(access_token)
+    var subreddits = ['announcements','funny','AskReddit','gaming','aww','pics','Music','science','worldnews','videos']
     const r = new snoowrap({
         accessToken: access_token,
         userAgent: process.env.USER_AGENT
     })
 
-    r.getSubreddit('pics').getHot()
+    let promiseArr = subreddits.map(item => {
+        return r.getSubreddit(item).getNew()
+            .then(data => stripData(data))
+            .then(data => {
+                return {
+                    'subreddit':item,
+                    'data': data
+                }
+            })
+    })
+    
+    Promise.all(promiseArr)
         .then(data => res.send(data))
+    
 })
 
 console.log(`Listening on port ${port}. Go /login to initiate authentication flow.`)
