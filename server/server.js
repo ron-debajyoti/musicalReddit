@@ -15,7 +15,7 @@ let redirect_uri = process.env.REDIRECT_URI || 'http://localhost:4000/callback'
 // console.log(process.env.REDDIT_CLIENT)
 
 
-const stripData = (data) => {
+const stripData = (data,subreddit) => {
     var store = []
     data.forEach(dataElement => {
         var storeObject = {}
@@ -25,6 +25,7 @@ const stripData = (data) => {
         storeObject['id'] = dataElement.id
         storeObject['permalink'] = dataElement.permalink
         storeObject['title'] = dataElement.title
+        storeObject['subreddit'] = subreddit
         store.push(storeObject)
     })
     return store
@@ -79,7 +80,7 @@ app.get('/callback', (req,res) => {
 // a REST API interface that returns the posts 
 app.get('/getposts',(req,res) => {
     let access_token = req.headers.access_token
-    var subreddits = ['announcements','funny','AskReddit','gaming','aww','pics','Music','science','worldnews','videos']
+    var subreddits = ['ContagiousLaughter','funny','AskReddit','gaming','aww','pics','Music','tifu','worldnews','videos']
     const r = new snoowrap({
         accessToken: access_token,
         userAgent: process.env.USER_AGENT
@@ -87,7 +88,7 @@ app.get('/getposts',(req,res) => {
 
     let promiseArr = subreddits.map(item => {
         return r.getSubreddit(item).getNew()
-            .then(data => stripData(data))
+            .then(data => stripData(data,item))
             .then(data => {
                 return {
                     'subreddit':item,

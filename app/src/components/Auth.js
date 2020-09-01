@@ -2,7 +2,10 @@ import React,{Component} from 'react'
 import queryString from 'query-string'
 import Cookies from 'js-cookie'
 import * as API from './Utils/APICalls'
+import Background from './Background'
+import '../css/Auth.css'
 
+var globalData = []
 const getAccessToken = () => Cookies.get('access_token')
 // const isAuthenticated = () => {
 //     const temp = getAccessToken()
@@ -39,32 +42,67 @@ class Auth extends Component{
     constructor(){
         super()
         this.state ={
-            isAuthenticated :false
+            isAuthenticated :false,
+            data:null
         }
+    }
+
+    mergeData = (data) => {
+        var temp = []
+        data.forEach(item => {
+            temp = temp.concat(item.data)
+        })
+        temp.sort((a,b) => parseInt(a.created_utc) - parseInt(b.created_utc))
+        return temp.slice(125,250)
+
     }
 
     componentDidMount(){
         authenticate()
             .then(isAuthenticated => {
                 this.setState(() => ({
-                    isAuthenticated
+                    ...this.state,
+                    isAuthenticated : isAuthenticated
+                }))
+            })
+        API.getLatestPosts()
+            .then(data => {
+                globalData = this.mergeData(data)
+                return globalData
+            })
+            // .then(data => console.log(data))
+            .then(data =>{
+                console.log(data)
+                this.setState(() => ({
+                    ...this.state,
+                    data : data
                 }))
             })
     }
 
-    componentDidUpdate(){
-        API.getLatestPosts()
-            .then(data =>console.log(data))
+    componentDidUpdate(prevProp, prevState){
     }
 
     render(){
         console.log(this.state.isAuthenticated)
         if(this.state.isAuthenticated){
-            return (
-                <div>
-                    <h1>Okay you are authenticated friend</h1>
-                </div>
-            )
+            if(this.state.data !== null){
+                return (
+                    <div>
+                        <h1>Okay you are authenticated friend</h1>
+                        <Background data={this.state.data}/>
+                    </div>
+                )
+            }
+            else{
+                console.log(this.state)
+                return(
+                    <div>
+                        <h1> Data loading... Please wait.... </h1>
+                    </div>
+                )
+            }
+            
         } 
         else{
             return(
