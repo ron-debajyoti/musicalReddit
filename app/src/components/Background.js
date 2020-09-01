@@ -53,12 +53,20 @@ class Background extends Component{
         loadedSounds +=1
         if(loadedSounds === totalSounds){
             all_loaded = true
-            setTimeout(this.playSound, Math.floor(Math.random()*1000))
+            let x = Math.floor(Math.random()*1000)%100
+            console.log(x)
+            setTimeout(this.playSound, x)
         }
     }
 
     loadSounds = () => {
         var fn
+        // var checker = new Howl({
+        //     src: ['/sounds/celesta/c01.ogg']
+        // })
+        // checker.play()
+
+
         for(var i = 1; i <= 24; i++) {
             if (i > 9) {
                 fn = 'c0' + i;
@@ -66,15 +74,15 @@ class Background extends Component{
                 fn = 'c00' + i;
             }
             celesta.push(new Howl({
-                src : ['../sounds/celesta/' + fn + '.ogg',
-                        '../sounds/celesta/' + fn + '.mp3'],
+                src : ['/sounds/celesta/' + fn + '.ogg',
+                        '/sounds/celesta/' + fn + '.mp3'],
                 volume : 0.7,
                 onload : this.load(),
                 buffer: true,
             }))
             clav.push(new Howl({
-                src : ['../sounds/clav/' + fn + '.ogg',
-                        '../sounds/clav/' + fn + '.mp3'],
+                src : ['/sounds/clav/' + fn + '.ogg',
+                        '/sounds/clav/' + fn + '.mp3'],
                 volume : 0.4,
                 onload : this.load(),
                 buffer: true,
@@ -83,8 +91,8 @@ class Background extends Component{
       
         for (i = 1; i <= 3; i++) {
             swells.push(new Howl({
-                src : ['../sounds/swells/swell' + i + '.ogg',
-                        '../sounds/swells/swell' + i + '.mp3'],
+                src : ['/sounds/swells/swell' + i + '.ogg',
+                        '/sounds/swells/swell' + i + '.mp3'],
                 volume : 0.9,
                 onload : this.load(),
                 buffer: true,
@@ -130,10 +138,126 @@ class Background extends Component{
 
 
     playSound = () =>{
+        let count=0
         this.state.data.forEach(dataItem => {
+            count++
+            console.log(count+"count")
             this.play(1,dataItem)
+            setTimeout(10000)
         })
     }
+
+
+
+    drawEvent = (data, svg_area) => {
+        var starting_opacity = 1;
+        var opacity = 1 / (100 / data.message.length);
+        if (opacity > 0.5) {
+            opacity = 0.5;
+        }
+        var size = data.message.length;
+        var label_text;
+        var ring_radius = 80;
+        var ring_anim_duration = 3000;
+        svg_text_color = '#FFFFFF';
+        switch(data.subreddit){
+          case "PushEvent":
+            label_text = data.user.capitalize() + " pushed to " + data.repo_name;
+            edit_color = '#B2DFDB';
+          break;
+          case "PullRequestEvent":
+            label_text = data.user.capitalize() + " " +
+              data.action + " " + " a PR for " + data.repo_name;
+              edit_color = '#C6FF00';
+              ring_anim_duration = 10000;
+              ring_radius = 600;
+          break;
+          case "IssuesEvent":
+            label_text = data.user.capitalize() + " " +
+              data.action + " an issue in " + data.repo_name;
+              edit_color = '#FFEB3B';
+          break;
+          case "IssueCommentEvent":
+            label_text = data.user.capitalize() + " commented in " + data.repo_name;
+            edit_color = '#FF5722';
+          break;
+        }
+        var csize = size;
+        var no_label = false;
+        var type = data.type;
+    
+        var circle_id = 'd' + ((Math.random() * 100000) | 0);
+        var abs_size = Math.abs(size);
+        size = Math.max(Math.sqrt(abs_size) * scale_factor, 3);
+    
+        Math.seedrandom(data.message)
+        var x = Math.random() * (width - size) + size;
+        var y = Math.random() * (height - size) + size;
+    
+    
+        var circle_group = svg_area.append('g')
+            .attr('transform', 'translate(' + x + ', ' + y + ')')
+            .attr('fill', edit_color)
+            .style('opacity', starting_opacity)
+    
+    
+        var ring = circle_group.append('circle');
+        ring.attr({r: size, stroke: 'none'});
+        ring.transition()
+            .attr('r', size + ring_radius)
+            .style('opacity', 0)
+            .ease(Math.sqrt)
+            .duration(ring_anim_duration)
+            .remove();
+    
+        var circle_container = circle_group.append('a');
+        circle_container.attr('xlink:href', data.url);
+        circle_container.attr('target', '_blank');
+        circle_container.attr('fill', svg_text_color);
+    
+        var circle = circle_container.append('circle');
+        circle.classed(type, true);
+        circle.attr('r', size)
+          .attr('fill', edit_color)
+          .transition()
+          .duration(max_life)
+          .style('opacity', 0)
+          .remove();
+    
+    
+        circle_container.on('mouseover', function() {
+          circle_container.append('text')
+              .text(label_text)
+              .classed('label', true)
+              .attr('text-anchor', 'middle')
+              .attr('font-size', '0.8em')
+              .transition()
+              .delay(1000)
+              .style('opacity', 0)
+              .duration(2000)
+              .each(function() { no_label = true; })
+              .remove();
+        });
+    
+        var text = circle_container.append('text')
+            .text(label_text)
+            .classed('article-label', true)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '0.8em')
+            .transition()
+            .delay(2000)
+            .style('opacity', 0)
+            .duration(5000)
+            .each(function() { no_label = true; })
+            .remove();
+    
+      // Remove HTML of decayed events
+      // Keep it less than 50
+      if($('#area svg g').length > 50){
+        $('#area svg g:lt(10)').remove();
+      }
+    }
+
 
     componentDidMount(){
         element = document.documentElement
