@@ -1,14 +1,13 @@
 import React, {Component} from 'react'
 import {Howl, Howler} from 'howler'
 import styled from 'styled-components/macro'
-import back from '../images/reddit.svg'
+import seedrandom from 'seedrandom'
 import * as d3 from 'd3'
 import PropTypes from 'prop-types'
 import $ from 'jquery'
 
-const ImageWrapper = styled.img`
-    display: inline-block;
-    vertical-align: middle;
+const Wrapper = styled.div`
+    min-height: 85vh;
 `
 
 
@@ -53,7 +52,7 @@ class Background extends Component{
         loadedSounds +=1
         if(loadedSounds === totalSounds){
             all_loaded = true
-            let x = Math.floor(Math.random()*1000)%100
+            let x = Math.floor(Math.random()*1000)
             console.log(x)
             setTimeout(this.playSound, x)
         }
@@ -116,19 +115,20 @@ class Background extends Component{
         if(current_notes < note_overlap){
             current_notes++
             //console.log('reached here !')
-            if(dataEntry.subreddit ==='Music' || dataEntry.subreddit ==='tifu' || dataEntry.subreddit ==='ContagiousLaughter'){
-                console.log(clav[index])
+            if(dataEntry.subreddit ==='Music' || dataEntry.subreddit ==='gaming' || dataEntry.subreddit ==='ContagiousLaughter' || dataEntry.subreddit ==='AskReddit'){
+                console.log('clav' + index)
                 clav[index].play()
-            } else if (dataEntry.subreddit ==='funny' || dataEntry.subreddit ==='gaming' || dataEntry.subreddit ==='aww' || dataEntry.subreddit ==='pics'){
-                console.log(celesta[index])
+            } else if (dataEntry.subreddit ==='funny' || dataEntry.subreddit ==='tifu' || dataEntry.subreddit ==='aww' || dataEntry.subreddit ==='pics' ){
+                console.log('celesta' + index)
                 celesta[index].play()
             } else{
                 var i = Math.round(Math.random() * (swells.length-1))
-                console.log(swells[i])
+                console.log('swells' + index)
                 swells[i].play()
             }
 
             setTimeout(() => {
+                console.log('this called here !')
                 current_notes--
             },note_timeout)
         }
@@ -138,49 +138,38 @@ class Background extends Component{
 
 
     playSound = () =>{
-        let count=0
-        this.state.data.forEach(dataItem => {
-            count++
-            console.log(count+"count")
-            this.play(1,dataItem)
-            setTimeout(10000)
-        })
+        var dataItem = this.state.data.shift()
+        console.log(this.state.data.length)
+        this.play(dataItem.authorName.length*2.1,dataItem)
+        this.drawEvent(dataItem,svg)
+        // setTimeout(this.playSound, Math.floor(Math.random() *1000) + 800)
+
     }
-
-
 
     drawEvent = (data, svg_area) => {
         var starting_opacity = 1;
-        var opacity = 1 / (100 / data.message.length);
+        var opacity = 1 / (100 / data.authorName.length);
         if (opacity > 0.5) {
             opacity = 0.5;
         }
-        var size = data.message.length;
+        var size = data.authorName.length;
         var label_text;
         var ring_radius = 80;
         var ring_anim_duration = 3000;
         svg_text_color = '#FFFFFF';
-        switch(data.subreddit){
-          case "PushEvent":
-            label_text = data.user.capitalize() + " pushed to " + data.repo_name;
-            edit_color = '#B2DFDB';
-          break;
-          case "PullRequestEvent":
-            label_text = data.user.capitalize() + " " +
-              data.action + " " + " a PR for " + data.repo_name;
-              edit_color = '#C6FF00';
-              ring_anim_duration = 10000;
-              ring_radius = 600;
-          break;
-          case "IssuesEvent":
-            label_text = data.user.capitalize() + " " +
-              data.action + " an issue in " + data.repo_name;
-              edit_color = '#FFEB3B';
-          break;
-          case "IssueCommentEvent":
-            label_text = data.user.capitalize() + " commented in " + data.repo_name;
+        if(data.subreddit ==='Music' || data.subreddit ==='gaming' || data.subreddit ==='ContagiousLaughter' || data.subreddit ==='AskReddit'){
+            label_text = data.authorName + " posted in subreddit " + data.subreddit
+            edit_color = '#B2DFDB'   
+        }
+        else if (data.subreddit ==='funny' || data.subreddit ==='tifu' || data.subreddit ==='aww' || data.subreddit ==='pics' ){
+            label_text = data.authorName + " posted in subreddit " + data.subreddit
+            edit_color = '#C6FF00'
+            ring_anim_duration = 10000
+            ring_radius = 600
+        }
+        else{
+            label_text = data.authorName + " commented in " + data.subreddit;
             edit_color = '#FF5722';
-          break;
         }
         var csize = size;
         var no_label = false;
@@ -190,7 +179,7 @@ class Background extends Component{
         var abs_size = Math.abs(size);
         size = Math.max(Math.sqrt(abs_size) * scale_factor, 3);
     
-        Math.seedrandom(data.message)
+        seedrandom(data.authorName)
         var x = Math.random() * (width - size) + size;
         var y = Math.random() * (height - size) + size;
     
@@ -269,8 +258,10 @@ class Background extends Component{
         $('svg text').css('color', svg_text_color); 
 
         svg = d3.select("#area").append("svg");
-        svg.attr({width: width, height: height});
-        svg.style('background-color', svg_background_color_online);
+        // svg.attr({width: "100%", height: '75vh'});
+        svg.setAttribute({viewbox: '0 0 1000 1000'})
+        console.log(width + ','+height)
+        svg.style('background-color', svg_background_color_online)
         Howler.volume(volume)
         this.loadSounds()
 
@@ -278,9 +269,8 @@ class Background extends Component{
 
     render(){
         return(
-            <div id='area'>
-                <ImageWrapper src={back} alt='back' />
-            </div>
+            <Wrapper id='area'>
+            </Wrapper>
         )
     }
 }

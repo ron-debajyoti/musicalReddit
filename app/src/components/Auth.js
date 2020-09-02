@@ -3,7 +3,17 @@ import queryString from 'query-string'
 import Cookies from 'js-cookie'
 import * as API from './Utils/APICalls'
 import Background from './Background'
+import styled from 'styled-components/macro'
 import '../css/Auth.css'
+
+const Wrapper = styled.div`
+    height:100%;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+`
+
+
 
 var globalData = []
 const getAccessToken = () => Cookies.get('access_token')
@@ -88,27 +98,27 @@ class Auth extends Component{
         if(this.state.isAuthenticated){
             if(this.state.data !== null){
                 return (
-                    <div>
+                    <Wrapper id='parent'>
                         <h1>Okay you are authenticated friend</h1>
                         <Background data={this.state.data}/>
-                    </div>
+                    </Wrapper>
                 )
             }
             else{
                 console.log(this.state)
                 return(
-                    <div>
+                    <Wrapper>
                         <h1> Data loading... Please wait.... </h1>
-                    </div>
+                    </Wrapper>
                 )
             }
             
         } 
         else{
             return(
-                <div>
+                <Wrapper>
                     <h1> Restricted page </h1>
-                </div>
+                </Wrapper>
             )
         }
     }
