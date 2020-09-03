@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Generated music through posts of oneor more subreddits",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ron-debajyoti/musicalReddit.git"
@@ -36,5 +33,12 @@
     "express": "^4.17.1",
     "nodemon": "^2.0.4",
     "querystring": "^0.2.0"
+  },
+  "devDependencies": {
+    "babel-plugin-styled-components": "^1.11.1"
+  },
+  "scripts": {
+    "build": "cd app && react-scripts build",
+    "heroku-postbuild": "npm run build"
   }
 }
