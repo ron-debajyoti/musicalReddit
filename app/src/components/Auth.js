@@ -99,7 +99,7 @@ class Auth extends Component{
             if(this.state.data !== null){
                 return (
                     <Wrapper id='parent'>
-                        <h1>Okay you are authenticated friend</h1>
+                        <h1>Welcome</h1>
                         <Background data={this.state.data}/>
                     </Wrapper>
                 )
@@ -136,7 +136,7 @@ export const AuthenticatedRoute = () => {
         console.log('else block called here')
         return(
             <div>
-                <h1> You are not authenticated </h1>
+                <h1> You are not authenticated to visit this page </h1>
             </div>
         )
     }

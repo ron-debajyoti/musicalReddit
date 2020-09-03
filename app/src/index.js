@@ -1,10 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './components/App';
-import * as serviceWorker from './serviceWorker';
+import React from 'react'
+import {BrowserRouter} from 'react-router-dom'
+import ReactDOM from 'react-dom'
+import Login from './components/Login'
+import * as serviceWorker from './serviceWorker'
 
 ReactDOM.render(
-  <App />,
+  <BrowserRouter>
+    <Login />
+  </BrowserRouter>,
   document.getElementById('root')
 );
 

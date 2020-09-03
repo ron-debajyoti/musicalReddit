@@ -65,7 +65,7 @@ app.get('/callback', (req,res) => {
         if(!error){
             // console.log(body)
             var access_token = body.access_token
-            let frontend_uri = process.env.FRONTEND_URI || 'http://localhost:3000/'
+            let frontend_uri = process.env.FRONTEND_URI || 'http://localhost:3000/main'
             res.redirect(frontend_uri +'?' + querystring.stringify({
                 access_token:access_token
             }))

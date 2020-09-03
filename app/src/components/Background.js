@@ -26,7 +26,7 @@ var width;
 var height;
 
 var svg_text_color = 'white',
-    svg_background_color_online = '#0288D1',
+    svg_background_color_online = '#2ef0d6',
     edit_color = '#fff'
 
 var celesta = [],
@@ -142,7 +142,7 @@ class Background extends Component{
         console.log(this.state.data.length)
         this.play(dataItem.authorName.length*2.1,dataItem)
         this.drawEvent(dataItem,svg)
-        // setTimeout(this.playSound, Math.floor(Math.random() *1000) + 800)
+        setTimeout(this.playSound, Math.floor(Math.random() *1000) + 800)
 
     }
 
@@ -163,12 +163,12 @@ class Background extends Component{
         }
         else if (data.subreddit ==='funny' || data.subreddit ==='tifu' || data.subreddit ==='aww' || data.subreddit ==='pics' ){
             label_text = data.authorName + " posted in subreddit " + data.subreddit
-            edit_color = '#C6FF00'
+            edit_color = '##f2a02e'
             ring_anim_duration = 10000
             ring_radius = 600
         }
         else{
-            label_text = data.authorName + " commented in " + data.subreddit;
+            label_text = data.authorName + " posted in subreddit " + data.subreddit;
             edit_color = '#FF5722';
         }
         var csize = size;
@@ -200,7 +200,7 @@ class Background extends Component{
             .remove();
     
         var circle_container = circle_group.append('a');
-        circle_container.attr('xlink:href', data.url);
+        circle_container.attr('xlink:href', 'https://www.reddit.com'+data.permalink);
         circle_container.attr('target', '_blank');
         circle_container.attr('fill', svg_text_color);
     
@@ -251,15 +251,16 @@ class Background extends Component{
     componentDidMount(){
         element = document.documentElement
         drawingArea = document.getElementById('area')
-        width = window.innerWidth || element.clientWidth || drawingArea.clientWidth;
-        height = (window.innerHeight  - $('header').height())|| (element.clientHeight - $('header').height()) || (drawingArea.clientHeight - $('header').height());
-        $('svg').css('background-color', svg_background_color_online);
-        $('header').css('background-color', svg_background_color_online);
+        width = window.innerWidth || element.clientWidth || drawingArea.clientWidth
+        height = (window.innerHeight)|| (element.clientHeight) || (drawingArea.clientHeight)
+        $('svg').css('background-color', svg_background_color_online)
+        $('header').css('background-color', svg_background_color_online)
         $('svg text').css('color', svg_text_color); 
 
-        svg = d3.select("#area").append("svg");
+        svg = d3.select("#area").append("svg")
         // svg.attr({width: "100%", height: '75vh'});
-        svg.setAttribute({viewbox: '0 0 1000 1000'})
+        svg.style('width','100%')
+        svg.style('height','85vh')
         console.log(width + ','+height)
         svg.style('background-color', svg_background_color_online)
         Howler.volume(volume)
