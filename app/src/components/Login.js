@@ -20,9 +20,9 @@ class Login extends Component{
     mainPage = () => {
         return(
             <div>
-                <div>
+                <h1>
                     Musical Reddit
-                </div>
+                </h1>
                 <Link to='/'>
                     <Button onClick={() => {window.location.href = process.env.REACT_APP_AUTH_URL}}>
                         Log in using Reddit
