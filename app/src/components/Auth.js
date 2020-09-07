@@ -12,16 +12,34 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
 `
-
-
+const Footer = styled.h3`
+    font-size : 0.6em;
+`
 
 var globalData = []
+const EXPIRATION = 3600*1000
+
+
+const setTimestamp = () => {
+    window.localStorage.setItem('token_timestamp',Date.now())
+}
 const getAccessToken = () => Cookies.get('access_token')
-// const isAuthenticated = () => {
-//     const temp = getAccessToken()
-//     if(temp === undefined) return false
-//     else return true
-// }
+const getRefreshToken = () => Cookies.get('refresh_token')
+const getTimestamp = () => window.localStorage.getItem('token_timestamp')
+
+const isAuthenticated = () => {
+    var temp = getAccessToken()
+    if(temp === undefined || (Date.now()-getTimestamp())>EXPIRATION ){
+        console.log('this is called')
+       temp = getRefreshToken()
+       if(temp === undefined){
+           return false
+       } else{
+        return refreshAccessToken(temp)
+       }
+    }
+    else return true
+}
 
 const setTokens = () => {
     const tokens = queryString.parse(window.location.search)
@@ -29,19 +47,31 @@ const setTokens = () => {
         return false
     }
     else{
-        console.log(tokens.access_token)
-        const expires = (tokens.expires_in || 60*60 ) * 1000
-        const oneHour = new Date(new Date().getTime() + expires)
-
-        Cookies.set('access_token',tokens.access_token, {expires : oneHour})
+        // const expires = (tokens.expires_in || 60*60 ) * 1000
+        // const oneHour = new Date(new Date().getTime() + expires)
+        setTimestamp()
+        Cookies.set('access_token',tokens.access_token)
+        Cookies.set('refresh_token',tokens.refresh_token)
         return true
+    }
+}
+
+const refreshAccessToken = async (refresh_token) =>{
+    try{
+        var access_token = await API.getNewAccessToken(refresh_token)
+        console.log(access_token)
+        setTimestamp()
+        Cookies.set('access_token',access_token)
+        return true
+    } catch(e){
+        console.error(e)
     }
 }
 
 
 const authenticate = async () => {
     // console.log("k")
-    if(getAccessToken()){
+    if(getAccessToken() !== undefined){
         console.log('its done here')
       return true
     }
@@ -63,7 +93,7 @@ class Auth extends Component{
             temp = temp.concat(item.data)
         })
         temp.sort((a,b) => parseInt(a.created_utc) - parseInt(b.created_utc))
-        return temp.slice(125,250)
+        return temp.slice(50,250)
 
     }
 
@@ -75,7 +105,7 @@ class Auth extends Component{
                     isAuthenticated : isAuthenticated
                 }))
             })
-        API.getLatestPosts()
+            .then(() => API.getLatestPosts(getAccessToken()))  
             .then(data => {
                 globalData = this.mergeData(data)
                 return globalData
@@ -94,18 +124,19 @@ class Auth extends Component{
     }
 
     render(){
-        console.log(this.state.isAuthenticated)
         if(this.state.isAuthenticated){
             if(this.state.data !== null){
                 return (
                     <Wrapper id='parent'>
                         <h1>Welcome</h1>
                         <Background data={this.state.data}/>
+                        <Footer onClick={() => {window.location.href = 'https://github.com/ron-debajyoti/musicalReddit'}}>
+
+                        </Footer>
                     </Wrapper>
                 )
             }
             else{
-                console.log(this.state)
                 return(
                     <Wrapper>
                         <h1> Data loading... Please wait.... </h1>
@@ -126,8 +157,10 @@ class Auth extends Component{
 
 
 export const AuthenticatedRoute = () => {
-    // if(isAuthenticated() || setTokens()){
-        if(setTokens()){
+    var temp1 = isAuthenticated()
+    var temp2 = setTokens()
+    if(temp1 || temp2){
+        // if(setTokens()){
         return(
             <Auth />
         )

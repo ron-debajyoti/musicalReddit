@@ -39,6 +39,7 @@ app.get('/login',(req,res) => {
         response_type: 'code',
         client_id: process.env.REDDIT_CLIENT,
         state: 'sddsfnjdskg',
+        duration: 'permanent',
         scope: 'read',
         redirect_uri
     }))
@@ -63,11 +64,13 @@ app.get('/callback', (req,res) => {
 
     request.post(authOptions, (error, response,body) => {
         if(!error){
-            // console.log(body)
+            //console.log(body)
             var access_token = body.access_token
+            var refresh_token = body.refresh_token
             let frontend_uri = process.env.FRONTEND_URI || 'http://localhost:3000/main'
             res.redirect(frontend_uri +'?' + querystring.stringify({
-                access_token:access_token
+                access_token:access_token,
+                refresh_token:refresh_token
             }))
         }
         else{
@@ -76,11 +79,43 @@ app.get('/callback', (req,res) => {
     })
 })
 
+//refresh_token route
+app.get('/refresh_token',(req,res) => {
+    let refresh_token = req.headers.refresh_token
+    let authOptions = {
+        url : 'https://www.reddit.com/api/v1/access_token',
+        form: {
+            refresh_token: refresh_token,
+            grant_type: 'refresh_token'
+        },
+        headers : {
+            'Authorization': 'Basic '+(new Buffer(process.env.REDDIT_CLIENT + ':' + 
+                process.env.REDDIT_SECRET).toString('base64'))
+        },
+        json: true
+    }
+
+    request.post(authOptions, (error, response,body) => {
+        if(!error){
+            var access_token = body.access_token
+            let frontend_uri = process.env.FRONTEND_URI || 'http://localhost:3000/main'
+            res.send(access_token)
+        }
+        else{
+            throw error
+        }
+    })
+
+})
+
+
+
 
 // a REST API interface that returns the posts 
 app.get('/getposts',(req,res) => {
     let access_token = req.headers.access_token
-    var subreddits = ['ContagiousLaughter','funny','AskReddit','gaming','aww','pics','Music','tifu','worldnews','videos']
+    console.log(access_token)
+    var subreddits = ['ContagiousLaughter','funny','AskReddit','gaming','aww','pics','Music','tifu','worldnews','videos', 'reactiongifs', 'interestingasfuck']
     const r = new snoowrap({
         accessToken: access_token,
         userAgent: process.env.USER_AGENT

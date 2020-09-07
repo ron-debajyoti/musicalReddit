@@ -15,7 +15,7 @@ var volume  = 0.6
 var totalSounds = 51
 var scale_factor = 6,
     note_overlap = 2,
-    note_timeout = 300,
+    note_timeout = 200,
     current_notes = 0,
     max_life = 20000
 
@@ -26,7 +26,7 @@ var width;
 var height;
 
 var svg_text_color = 'white',
-    svg_background_color_online = '#2ef0d6',
+    svg_background_color_online = '#fc8d05',
     edit_color = '#fff'
 
 var celesta = [],
@@ -42,7 +42,8 @@ class Background extends Component{
     }    
 
     state = {
-        data : this.props.data
+        data : this.props.data,
+        tempData : this.props.data
     }
 
 
@@ -53,8 +54,7 @@ class Background extends Component{
         if(loadedSounds === totalSounds){
             all_loaded = true
             let x = Math.floor(Math.random()*1000)
-            console.log(x)
-            setTimeout(this.playSound, x)
+            setTimeout(this.parentPlayFunct, x)
         }
     }
 
@@ -97,7 +97,7 @@ class Background extends Component{
                 buffer: true,
             }));
         }
-
+        console.log('done')
     }
 
 
@@ -116,35 +116,44 @@ class Background extends Component{
             current_notes++
             //console.log('reached here !')
             if(dataEntry.subreddit ==='Music' || dataEntry.subreddit ==='gaming' || dataEntry.subreddit ==='ContagiousLaughter' || dataEntry.subreddit ==='AskReddit'){
-                console.log('clav' + index)
                 clav[index].play()
-            } else if (dataEntry.subreddit ==='funny' || dataEntry.subreddit ==='tifu' || dataEntry.subreddit ==='aww' || dataEntry.subreddit ==='pics' ){
-                console.log('celesta' + index)
+            } else if (dataEntry.subreddit ==='funny' || dataEntry.subreddit ==='tifu' || dataEntry.subreddit ==='aww' || dataEntry.subreddit ==='pics' || dataEntry.subreddit === 'interestingasfuck' ){
                 celesta[index].play()
             } else{
                 var i = Math.round(Math.random() * (swells.length-1))
-                console.log('swells' + index)
                 swells[i].play()
             }
 
             setTimeout(() => {
-                console.log('this called here !')
                 current_notes--
             },note_timeout)
         }
     }
 
 
+    parentPlayFunct = () => {
+        if(this.state.data.length <= 2 && this.state.tempData.length > 0){
+            var temp = JSON.parse(JSON.stringify(this.state.tempData))
+            this.setState(() => ({
+                ...this.state,
+                data : temp
+            }),() => {
+                this.playSound()
+            })
+        }
+        else{
+            this.playSound()
+        }
+    }
 
 
     playSound = () =>{
         var dataItem = this.state.data.shift()
-        console.log(this.state.data.length)
         this.play(dataItem.authorName.length*2.1,dataItem)
         this.drawEvent(dataItem,svg)
-        setTimeout(this.playSound, Math.floor(Math.random() *1000) + 800)
-
-    }
+        setTimeout(this.parentPlayFunct, Math.floor(Math.random() *1000) + 800)
+        $('.events-remaining-value').html(this.state.data.length);
+    }   
 
     drawEvent = (data, svg_area) => {
         var starting_opacity = 1;
@@ -159,17 +168,17 @@ class Background extends Component{
         svg_text_color = '#FFFFFF';
         if(data.subreddit ==='Music' || data.subreddit ==='gaming' || data.subreddit ==='ContagiousLaughter' || data.subreddit ==='AskReddit'){
             label_text = data.authorName + " posted in subreddit " + data.subreddit
-            edit_color = '#B2DFDB'   
+            edit_color = '#0093fc'   
         }
-        else if (data.subreddit ==='funny' || data.subreddit ==='tifu' || data.subreddit ==='aww' || data.subreddit ==='pics' ){
+        else if (data.subreddit ==='funny' || data.subreddit ==='tifu' || data.subreddit ==='aww' || data.subreddit ==='pics' || data.subreddit ==='interestingasfuck' ){
             label_text = data.authorName + " posted in subreddit " + data.subreddit
-            edit_color = '##f2a02e'
+            edit_color = '#00d12a'
             ring_anim_duration = 10000
             ring_radius = 600
         }
         else{
             label_text = data.authorName + " posted in subreddit " + data.subreddit;
-            edit_color = '#FF5722';
+            edit_color = '#d12d00';
         }
         var csize = size;
         var no_label = false;
@@ -260,12 +269,13 @@ class Background extends Component{
         svg = d3.select("#area").append("svg")
         // svg.attr({width: "100%", height: '75vh'});
         svg.style('width','100%')
-        svg.style('height','85vh')
-        console.log(width + ','+height)
+        svg.style('height','95vh')
         svg.style('background-color', svg_background_color_online)
         Howler.volume(volume)
         this.loadSounds()
+    }
 
+    componentDidUpdate(){
     }
 
     render(){

@@ -3,3 +3,8 @@
 	position: relative;
 	/*height: calc(100vh - 70px);*/
 }
+
+.events-remaining-value{
+	font-size: 0.8em;
+	visibility: hidden;
+}
