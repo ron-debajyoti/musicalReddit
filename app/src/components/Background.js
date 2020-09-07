@@ -7,7 +7,8 @@ import PropTypes from 'prop-types'
 import $ from 'jquery'
 
 const Wrapper = styled.div`
-    min-height: 85vh;
+    width: 100%;
+    position: relative;
 `
 
 
@@ -269,7 +270,7 @@ class Background extends Component{
         svg = d3.select("#area").append("svg")
         // svg.attr({width: "100%", height: '75vh'});
         svg.style('width','100%')
-        svg.style('height','95vh')
+        svg.style('height','100%')
         svg.style('background-color', svg_background_color_online)
         Howler.volume(volume)
         this.loadSounds()

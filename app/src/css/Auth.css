@@ -1,3 +1,11 @@
+html, body, div, footer{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 100%;
+	vertical-align: baseline;
+}
+
 #area{
 	width: 100%;
 	position: relative;

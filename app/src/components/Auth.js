@@ -7,13 +7,11 @@ import styled from 'styled-components/macro'
 import '../css/Auth.css'
 
 const Wrapper = styled.div`
-    height:100%;
-    min-height: 100vh;
-    justify-content: center;
-    align-items: center;
+    width: 100%;
+    position: relative;
 `
-const Footer = styled.h3`
-    font-size : 0.6em;
+const Footer = styled.a`
+    font-size : 1em;
 `
 
 var globalData = []
@@ -130,8 +128,8 @@ class Auth extends Component{
                     <Wrapper id='parent'>
                         <h1>Welcome</h1>
                         <Background data={this.state.data}/>
-                        <Footer onClick={() => {window.location.href = 'https://github.com/ron-debajyoti/musicalReddit'}}>
-
+                        <Footer href='https://github.com/ron-debajyoti/musicalReddit' target="_blank">
+                            Github
                         </Footer>
                     </Wrapper>
                 )
