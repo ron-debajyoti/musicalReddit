@@ -19,7 +19,7 @@ const Wrapper = styled.main`
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background-color: #ff5800;
+    background-color: #fca000;
 `
 
 const Button = styled.button`

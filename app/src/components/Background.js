@@ -44,7 +44,7 @@ class Background extends Component{
 
     state = {
         data : this.props.data,
-        tempData : this.props.data
+        tempData : JSON.parse(JSON.stringify(this.props.data))
     }
 
 
@@ -150,6 +150,7 @@ class Background extends Component{
 
     playSound = () =>{
         var dataItem = this.state.data.shift()
+        console.log(this.state.data)
         this.play(dataItem.authorName.length*2.1,dataItem)
         this.drawEvent(dataItem,svg)
         setTimeout(this.parentPlayFunct, Math.floor(Math.random() *1000) + 800)
@@ -181,7 +182,6 @@ class Background extends Component{
             label_text = data.authorName + " posted in subreddit " + data.subreddit;
             edit_color = '#d12d00';
         }
-        var csize = size;
         var no_label = false;
         var type = data.type;
     
@@ -237,24 +237,6 @@ class Background extends Component{
               .each(function() { no_label = true; })
               .remove();
         });
-    
-        var text = circle_container.append('text')
-            .text(label_text)
-            .classed('article-label', true)
-            .attr('text-anchor', 'middle')
-            .attr('font-size', '0.8em')
-            .transition()
-            .delay(2000)
-            .style('opacity', 0)
-            .duration(5000)
-            .each(function() { no_label = true; })
-            .remove();
-    
-      // Remove HTML of decayed events
-      // Keep it less than 50
-      if($('#area svg g').length > 50){
-        $('#area svg g:lt(10)').remove();
-      }
     }
 
 

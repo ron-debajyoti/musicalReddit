@@ -7,6 +7,7 @@ import styled from 'styled-components/macro'
 import '../css/Auth.css'
 
 const Wrapper = styled.div`
+    background-color: #fca000;
     width: 100%;
     position: relative;
 `
