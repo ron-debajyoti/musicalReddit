@@ -237,6 +237,24 @@ class Background extends Component{
               .each(function() { no_label = true; })
               .remove();
         });
+
+        var text = circle_container.append('text')
+            .text(label_text)
+            .classed('article-label', true)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '0.8em')
+            .transition()
+            .delay(2000)
+            .style('opacity', 0)
+            .duration(5000)
+            .each(function() { no_label = true; })
+            .remove();
+
+      // Remove HTML of decayed events
+      // Keep it less than 50
+      if($('#area svg g').length > 50){
+        $('#area svg g:lt(10)').remove();
+      }
     }
 
 
