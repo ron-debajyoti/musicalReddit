@@ -14,6 +14,11 @@ const Wrapper = styled.div`
 const Footer = styled.a`
     font-size : 1em;
 `
+const About = styled.div`
+    font-size : 1em;
+    height: 25%;
+    position: relative;
+`
 
 var globalData = []
 var asyncIntervals = []
@@ -162,11 +167,19 @@ class Auth extends Component{
             if(this.state.data !== null){
                 return (
                     <Wrapper id='parent'>
-                        <h1>Welcome</h1>
+                        <h1 styles={{'color':'white'}}>Musical Reddit from subreddits</h1>
                         <Background data={this.state.data} />
-                        <Footer href='https://github.com/ron-debajyoti/musicalReddit' target="_blank">
-                            Github
-                        </Footer>
+                        <About>
+                            <h2> About </h2>
+                            <span> This project tracks latest posts made on selected subreddits made across Reddit and 
+                                converts them into music notes based on parameters and types of sounds used.
+                            </span>
+                            <br></br>
+                            <br></br>
+                            <Footer href='https://github.com/ron-debajyoti/musicalReddit' target="_blank">
+                                Github
+                            </Footer>
+                        </About>
                     </Wrapper>
                 )
             }
