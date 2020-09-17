@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {memo, Component} from 'react'
 import {Howl, Howler} from 'howler'
 import styled from 'styled-components/macro'
 import seedrandom from 'seedrandom'
@@ -43,7 +43,7 @@ class Background extends Component{
     }    
 
     state = {
-        data : this.props.data,
+        dataDraft : this.props.data,
         tempData : JSON.parse(JSON.stringify(this.props.data))
     }
 
@@ -133,11 +133,11 @@ class Background extends Component{
 
 
     parentPlayFunct = () => {
-        if(this.state.data.length <= 2 && this.state.tempData.length > 0){
+        if(this.state.dataDraft.length <= 2 && this.state.tempData.length > 0){
             var temp = JSON.parse(JSON.stringify(this.state.tempData))
             this.setState(() => ({
                 ...this.state,
-                data : temp
+                dataDraft : temp
             }),() => {
                 this.playSound()
             })
@@ -149,12 +149,12 @@ class Background extends Component{
 
 
     playSound = () =>{
-        var dataItem = this.state.data.shift()
-        console.log(this.state.data)
+        var dataItem = this.state.dataDraft.shift()
+        console.log(this.state.dataDraft)
         this.play(dataItem.authorName.length*2.1,dataItem)
         this.drawEvent(dataItem,svg)
         setTimeout(this.parentPlayFunct, Math.floor(Math.random() *1000) + 800)
-        $('.events-remaining-value').html(this.state.data.length);
+        $('.events-remaining-value').html(this.state.dataDraft.length);
     }   
 
     drawEvent = (data, svg_area) => {
@@ -280,6 +280,7 @@ class Background extends Component{
     }
 
     render(){
+        console.log('rendering now')
         return(
             <Wrapper id='area'>
             </Wrapper>
@@ -287,4 +288,4 @@ class Background extends Component{
     }
 }
 
-export default Background
+export default memo(Background)

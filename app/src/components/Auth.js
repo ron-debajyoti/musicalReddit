@@ -1,4 +1,4 @@
-import React,{Component} from 'react'
+import React,{ Component} from 'react'
 import queryString from 'query-string'
 import Cookies from 'js-cookie'
 import * as API from './Utils/APICalls'
@@ -16,6 +16,7 @@ const Footer = styled.a`
 `
 
 var globalData = []
+var asyncIntervals = []
 const EXPIRATION = 3600*1000
 
 
@@ -86,6 +87,52 @@ class Auth extends Component{
         }
     }
 
+    runAsyncFetchData = async (f,interval,index) => {
+        await f()
+        if(asyncIntervals[index]){
+            setTimeout(() => this.runAsyncFetchData(f,interval,index), interval)
+        }
+    }
+
+    setAsyncInterval = async (f,interval) => {
+        if(f && typeof f=== "function"){
+            const index = asyncIntervals.length
+            asyncIntervals.push(true)
+            this.runAsyncFetchData(f,interval,index)
+            return index
+        } else{
+            throw new Error('Callback must be a function')
+        }
+    }
+
+    clearAsyncInterval = (index) => {
+        if(asyncIntervals[index]){
+            asyncIntervals[index] = false
+        }
+    }
+
+    fetchData = async () => API.getLatestPosts(getAccessToken())
+                                .then(data => {
+                                    // console.log('reacted done here')
+                                    // if(data !== this.state.data){
+                                    //     console.log('unmatched')
+                                    // }
+                                    return data
+                                })
+                                .then((data) => {
+                                    //console.log("called!")
+                                    globalData = this.mergeData(data)
+                                    return globalData
+                                })
+                                .then(data =>{
+                                    //console.log(data)
+                                    this.setState(() => ({
+                                        ...this.state,
+                                        data : data
+                                    }))
+                                })
+
+    
     mergeData = (data) => {
         var temp = []
         data.forEach(item => {
@@ -93,7 +140,6 @@ class Auth extends Component{
         })
         temp.sort((a,b) => parseInt(a.created_utc) - parseInt(b.created_utc))
         return temp.slice(50,250)
-
     }
 
     componentDidMount(){
@@ -104,19 +150,8 @@ class Auth extends Component{
                     isAuthenticated : isAuthenticated
                 }))
             })
-            .then(() => API.getLatestPosts(getAccessToken()))  
-            .then(data => {
-                globalData = this.mergeData(data)
-                return globalData
-            })
+            .then(() => this.setAsyncInterval(this.fetchData,90000))  
             // .then(data => console.log(data))
-            .then(data =>{
-                console.log(data)
-                this.setState(() => ({
-                    ...this.state,
-                    data : data
-                }))
-            })
     }
 
     componentDidUpdate(prevProp, prevState){
@@ -128,7 +163,7 @@ class Auth extends Component{
                 return (
                     <Wrapper id='parent'>
                         <h1>Welcome</h1>
-                        <Background data={this.state.data}/>
+                        <Background data={this.state.data} />
                         <Footer href='https://github.com/ron-debajyoti/musicalReddit' target="_blank">
                             Github
                         </Footer>
